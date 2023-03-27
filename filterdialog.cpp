@@ -9,7 +9,7 @@ FilterDialog::FilterDialog(QWidget *parent) :
 {
     setFixedSize(400,200);
     ui->setupUi(this);
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setText("绑定");
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setText("确定");
     ui->buttonBox->button(QDialogButtonBox::Cancel)->setText("取消");
 }
 

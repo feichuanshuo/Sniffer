@@ -32,6 +32,7 @@ set(PROJECT_SOURCES
         filterdialog.cpp
         filterdialog.ui
         image.qrc
+        head.h
         ${TS_FILES}
 )
 

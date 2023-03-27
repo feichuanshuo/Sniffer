@@ -5,6 +5,14 @@
 #include "filterdialog.h"
 #include <QMessageBox>
 
+void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_char *pkt_data)
+{
+    /*处理链路层*/
+//    ethernet_header *eh;
+//    eh = (ethernet_header *)pkt_data;
+//    printf("源MAC地址：%x:%x:%x:%x:%x:%x",eh->saddr.byte1,eh->saddr.byte2,eh->saddr.byte3,eh->saddr.byte4,eh->saddr.byte5,eh->saddr.byte6);
+    qDebug() << header->caplen;
+}
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -12,7 +20,6 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
 
-    char sdev[1024] = {0};
     ui->setupUi(this);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
@@ -26,11 +33,10 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete[] sdev;
 }
 // 设置网卡设备
 void MainWindow::setSDev(QString data){
-    sdev = data.toUtf8();
+    sdev = data;
 }
 
 // 添加过滤规则
@@ -58,22 +64,49 @@ void MainWindow::on_menu1_action2_triggered()
 
 void MainWindow::on_menu2_action1_triggered()
 {
-    if(sdev==nullptr || strlen(sdev) == 0){
+    if(sdev==""){
         QMessageBox::warning(this,"警告","请先绑定网卡设备！");
         return;
     }
     else{
+        const char* dname = sdev.toUtf8();
         char errbuf[PCAP_ERRBUF_SIZE];	// 出错信息
         // 打开一个网络接口
-        pcap_t* descr = pcap_open_live(sdev, BUFSIZ, 0, -1, errbuf);
+        pcap_t* descr = pcap_open_live(dname, BUFSIZ, 0, -1, errbuf);
         if (descr == NULL) {
             QMessageBox::critical(this,"错误","系统找不到指定的设备");
+            return;
         }
         // 判断数据链路层类型是否为以太网
         if (pcap_datalink(descr) != DLT_EN10MB) {
             QMessageBox::critical(this,"错误","设备不是以太网设备！");
             pcap_close(descr);
+            return;
         }
+//        delete[] dname;
+        // 创建过滤规则
+        QString filter_exp = "";
+        for (auto it = filterList.begin(); it != filterList.end(); ++it) {
+            filter_exp = filter_exp + *it;
+            if (*it!=*(filterList.rbegin())){
+                filter_exp = filter_exp + " or ";
+            }
+        }
+        struct bpf_program fp;
+        bpf_u_int32 net;
+        if (pcap_compile(descr, &fp, NULL , 0, net) == -1) {
+            cerr << "pcap_compile failed: " << pcap_geterr(descr) << endl;
+            pcap_close(descr);
+            exit(1);
+        }
+        if (pcap_setfilter(descr, &fp) == -1)
+        {
+            cerr << "pcap_setfilter failed: " << pcap_geterr(descr) << endl;
+            exit(1);
+        }
+        pcap_loop(descr, -1 , packet_handler, NULL);
+        pcap_close(descr);
+
     }
 
 }

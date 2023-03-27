@@ -32,7 +32,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     // 当前用于捕获的网卡设备
-    const char* sdev = nullptr;
+    QString sdev = "";
     std::set<QString> filterList;
 };
 #endif // MAINWINDOW_H
