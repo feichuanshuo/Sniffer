@@ -1,3 +1,4 @@
+// 网卡设备选择窗口文件
 #ifndef NCDIALOG_H
 #define NCDIALOG_H
 

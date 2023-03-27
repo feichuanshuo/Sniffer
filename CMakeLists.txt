@@ -28,6 +28,10 @@ set(PROJECT_SOURCES
         ncdialog.h
         ncdialog.cpp
         ncdialog.ui
+        filterdialog.h
+        filterdialog.cpp
+        filterdialog.ui
+        image.qrc
         ${TS_FILES}
 )
 

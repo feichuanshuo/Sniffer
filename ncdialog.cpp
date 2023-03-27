@@ -1,6 +1,8 @@
+// 网卡设备选择窗口文件
 #include "ncdialog.h"
 #include "ui_ncdialog.h"
 #include <QPushButton>
+#include <QMessageBox>
 
 
 NcDialog::NcDialog(QWidget *parent) :
@@ -82,10 +84,16 @@ void NcDialog::on_buttonBox_clicked(QAbstractButton *button)
     QDialogButtonBox::StandardButton btn = ui->buttonBox->standardButton(button);
     if (btn == QDialogButtonBox::Ok) {
         // 绑定网卡设备
-        // 用户选择网卡设备的回调
-        emit sendSDev(ui->textBrowser->toPlainText());
-        QDialog::accept();
-        // 用户未选择网卡设备的回调
+        if(ui->textBrowser->toPlainText()==""){
+             // 用户未选择网卡设备的回调
+            QMessageBox::warning(this,"警告","请选择网卡设备后再进行绑定！");
+        }
+        else {
+            // 用户选择网卡设备的回调
+            emit sendSDev(ui->textBrowser->toPlainText());
+            QDialog::accept();
+
+        }
 
     } else if (btn == QDialogButtonBox::Cancel) {
         // 取消操作
