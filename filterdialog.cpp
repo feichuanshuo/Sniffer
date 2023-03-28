@@ -20,6 +20,7 @@ FilterDialog::~FilterDialog()
 
 void FilterDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
+    emit sendFilter("");
     QDialogButtonBox::StandardButton btn = ui->buttonBox->standardButton(button);
     if (btn == QDialogButtonBox::Ok) {
         QList<QCheckBox*> checkBoxes = findChildren<QCheckBox*>();

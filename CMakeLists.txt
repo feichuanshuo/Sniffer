@@ -33,6 +33,8 @@ set(PROJECT_SOURCES
         filterdialog.ui
         image.qrc
         head.h
+        sniffer.h
+        sniffer.cpp
         ${TS_FILES}
 )
 

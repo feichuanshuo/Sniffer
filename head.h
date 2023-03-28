@@ -1,5 +1,6 @@
 #ifndef _HEAD_H
 #define _HEAD_H
+#include "pcap.h"
 
 /* 网络层协议类型 */
 #define IP       0x0800
