@@ -29,7 +29,7 @@ private slots:
     // 展示错误弹窗
     void showErrorDialog(QString text);
     // 展示包
-    void setPacketTable(QString p_protocol,QString p_time,QString p_dmac,QString p_smac,QString p_dip,QString p_sip,QString p_len);
+    void setPacketTable(ethernet_data p_ethernet,ip_data p_ip, QString p_len,QString p_time);
 signals:
     void warning(QString);
     void error(QString);

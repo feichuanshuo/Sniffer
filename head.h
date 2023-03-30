@@ -53,7 +53,8 @@ typedef struct ip_address
 /* IPv4 首部 */
 typedef struct ip_header
 {
-    u_char  ver_ihl;        // 版本 (4 bits) + 首部长度 (4 bits)
+    u_char ihl:4;           //首部长度
+    u_char ver:4;           //版本
     u_char  tos;            // 服务类型(Type of service)
     u_short tlen;           // 总长(Total length)
     u_short identification; // 标识(Identification)

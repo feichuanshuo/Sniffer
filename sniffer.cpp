@@ -10,14 +10,13 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
     // 将用户参数转换为Sniffer对象
     Sniffer* sniffer = reinterpret_cast<Sniffer*>(param);
 
-    /****** 定义包表格数据 ******/
-    QString p_protocol;
+    /****** 定义传递的数据包详情 ******/
     QString p_time;
-    QString p_dmac;
-    QString p_smac;
-    QString p_sip;
-    QString p_dip;
     QString p_len;
+    // 以太网帧
+    ethernet_data p_ethernet;
+    // ip数据包
+    ip_data p_ip;
 
 
     /****** 解析包头信息 ******/
@@ -35,7 +34,7 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
     ethernet_header *eh;
     eh = (ethernet_header *)pkt_data;
     // 解析目标MAC地址
-    p_dmac = QString("%1:%2:%3:%4:%5:%6")
+    p_ethernet.dmac = QString("%1:%2:%3:%4:%5:%6")
            .arg(eh->daddr.byte1, 2, 16, QChar('0'))
            .arg(eh->daddr.byte2, 2, 16, QChar('0'))
            .arg(eh->daddr.byte3, 2, 16, QChar('0'))
@@ -44,7 +43,7 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
            .arg(eh->daddr.byte6, 2, 16, QChar('0'));
 
    // 解析源MAC地址
-   p_smac = QString("%1:%2:%3:%4:%5:%6")
+   p_ethernet.smac = QString("%1:%2:%3:%4:%5:%6")
            .arg(eh->saddr.byte1, 2, 16, QChar('0'))
            .arg(eh->saddr.byte1, 2, 16, QChar('0'))
            .arg(eh->saddr.byte1, 2, 16, QChar('0'))
@@ -55,56 +54,60 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
     u_short eh_type = ntohs(eh->type);
     /*处理网络层*/
     if(eh_type == IP){
+        p_ethernet.protocol = "IP";
        // 获取IP头部信息
        ip_header *iph;
        iph = (ip_header *)(pkt_data + sizeof(ethernet_header));
        // IP版本
-       u_char p_ip_version = iph->ver_ihl;
+       p_ip.ver = QString::number(iph->ver);
+       // 首部长度
+       p_ip.ihl = QString::number(iph->ihl);
        // 服务类型(Type of service)
-       u_char  p_ip_tos = iph->tos;
+       p_ip.tos = QString("%1").arg(iph->tos,2,16,QChar('0')).toUpper();
        // 总长(Total length)
-       u_short p_ip_tlen = iph->tlen;
+       p_ip.tlen = QString::number(ntohs(iph->tlen));
        // 标识(Identification)
-       u_short p_ip_identification = iph->identification;
+       p_ip.identification = QString("%1").arg(ntohs(iph->identification),4,16,QChar('0')).toUpper();
        // 标志位(Flags) (3 bits) + 段偏移量(Fragment offset) (13 bits)
-       u_short p_ip_flags_fo = iph->flags_fo;
+       //u_short p_ip_flags_fo = iph->flags_fo;
+       p_ip.flags_fo = QString::number(iph->flags_fo);
        // 生存时间(Time to live)
-       u_char  p_ip_ttl = iph->ttl;
+       p_ip.ttl = QString::number(iph->ttl);
        // 协议(Protocol)
        switch (iph->type){
-        case 1 : p_protocol = "ICMP" ; break;
-        case 2 : p_protocol = "IGMP" ; break;
-        case 6 : p_protocol = "TCP" ; break;
-        case 17 : p_protocol = "UDP" ; break;
-        case 46 : p_protocol = "RSVP" ; break;
-        case 47 : p_protocol = "GRE" ; break;
-        case 50: p_protocol = "ESP" ; break;
-        case 51 : p_protocol = "AH " ; break;
-        case 58 : p_protocol = "ICMPv6" ; break;
-        case 89 : p_protocol = "OSPF" ; break;
-        case 132: p_protocol = "SCTP" ; break;
-        default: p_protocol = "不常用协议";
+        case 1 : p_ip.type = "ICMP" ; break;
+        case 2 : p_ip.type = "IGMP" ; break;
+        case 6 : p_ip.type = "TCP" ; break;
+        case 17 : p_ip.type = "UDP" ; break;
+        case 46 : p_ip.type = "RSVP" ; break;
+        case 47 : p_ip.type = "GRE" ; break;
+        case 50: p_ip.type = "ESP" ; break;
+        case 51 : p_ip.type = "AH " ; break;
+        case 58 : p_ip.type = "ICMPv6" ; break;
+        case 89 : p_ip.type = "OSPF" ; break;
+        case 132: p_ip.type = "SCTP" ; break;
+        default: p_ip.type = "不常用协议";
        }
 
        // 首部校验和(Header checksum)
-       u_short p_ip_crc = iph->crc;
+       p_ip.crc = QString("%1").arg(ntohs(iph->crc),4,16,QChar('0')).toUpper();;
        // 源地址(Source address)
-       p_sip = QString("%1.%2.%3.%4")
+       p_ip.saddr = QString("%1.%2.%3.%4")
                .arg(iph->saddr.byte1)
                .arg(iph->saddr.byte2)
                .arg(iph->saddr.byte3)
                .arg(iph->saddr.byte4);
        // 目的地址(Destination address)
-       p_dip = QString("%1.%2.%3.%4")
+       p_ip.daddr = QString("%1.%2.%3.%4")
                .arg(iph->daddr.byte1)
                .arg(iph->daddr.byte2)
                .arg(iph->daddr.byte3)
                .arg(iph->daddr.byte4);
-        // 选项与填充(Option + Padding)
-       u_int   p_ip_op_pad = iph->op_pad;
-
+       // 选项与填充(Option + Padding)
+       //u_int   p_ip_op_pad = iph->op_pad;
+       p_ip.op_pad = QString::number(iph->op_pad);
     }
-    emit sniffer->setTableData(p_protocol,p_time,p_dmac,p_smac,p_dip,p_sip,p_len);
+    emit sniffer->setTableData(p_ethernet,p_ip,p_len,p_time);
 
 }
 

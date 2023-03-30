@@ -1,11 +1,5 @@
-D:\CodeEditor\CLion\bin\cmake\win\x64\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=D:/CodeEditor/CLion/bin/ninja/win/x64/ninja.exe -G Ninja -S E:\Project\sniffer -B E:\Project\sniffer\cmake-build-debug
--- The CXX compiler identification is GNU 11.2.0
--- Detecting CXX compiler ABI info
--- Detecting CXX compiler ABI info - done
--- Check for working CXX compiler: D:/CodeEditor/CLion/bin/qt/Tools/mingw1120_64/bin/c++.exe - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
-CMake Error at CMakeLists.txt:12 (find_package):
+D:\CodeEditor\CLion\bin\cmake\win\x64\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=D:/CodeEditor/CLion/bin/ninja/win/x64/ninja.exe -G Ninja -S E:\Project\Sniffer -B E:\Project\Sniffer\cmake-build-debug
+CMake Error at CMakeLists.txt:18 (find_package):
   Could not find a package configuration file provided by "QT" with any of
   the following names:
 
@@ -20,4 +14,4 @@ CMake Error at CMakeLists.txt:12 (find_package):
 
 
 -- Configuring incomplete, errors occurred!
-See also "E:/Project/sniffer/cmake-build-debug/CMakeFiles/CMakeOutput.log".
+See also "E:/Project/Sniffer/cmake-build-debug/CMakeFiles/CMakeOutput.log".
