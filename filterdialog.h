@@ -4,6 +4,7 @@
 
 #include <QDialog>
 #include <QPushButton>
+#include <set>
 
 namespace Ui {
 class FilterDialog;
@@ -17,11 +18,20 @@ public:
     explicit FilterDialog(QWidget *parent = nullptr);
     ~FilterDialog();
 
+protected:
+    void showEvent(QShowEvent *event) override;
+
 private slots:
     void on_buttonBox_clicked(QAbstractButton *button);
 
 signals:
-    void sendFilter(QString);
+    // 添加过滤规则
+    void addFilter(QString);
+    // 获取过滤规则
+    std::set<QString> getFilter();
+    // 清空过滤规则
+    void clearFilter();
+
 private:
     Ui::FilterDialog *ui;
 };

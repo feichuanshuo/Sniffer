@@ -46,7 +46,7 @@ NcDialog::~NcDialog()
 }
 
 void NcDialog::showEvent(QShowEvent * event){
-    QWidget::showEvent(event);
+   QWidget::showEvent(event);
     // 网络接口设备列表
    char errbuf[PCAP_ERRBUF_SIZE];	// 出错信息
    // 网卡设备列表

@@ -18,6 +18,7 @@ link_directories(${PCAP_LINK_DIR})
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
 
+
 set(TS_FILES sniffer_zh_CN.ts)
 
 set(PROJECT_SOURCES
@@ -68,6 +69,8 @@ endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE Packet wpcap)
 
 target_link_libraries(sniffer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+#保证winsock2库可正常使用
+target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32)
 
 
 set_target_properties(sniffer PROPERTIES
