@@ -89,9 +89,9 @@ typedef struct tcp_header
     u_short dport;          // 目的端口(Destination port)
     u_int seq;              // 顺序号
     u_int ack;              // 确认号
-    u_char len;				// TCP头部长度，数据偏移单位是4字节，这里只用前4位
+    u_char header_length;	// TCP头部长度，数据偏移单位是4字节，这里只用前4位
     u_char flags;			// 后6位分别为：URG，ACK，PSH，RST，SYN，FIN
-    u_short win;			// 窗口大小
+    u_short window_size;	// 窗口大小
     u_short crc;			// 校验和
     u_short urp;			// 紧急指针
 }tcp_header;
@@ -111,6 +111,8 @@ typedef struct icmp_header
     u_char type;			//类型
     u_char code;			//代码
     u_short checksum;		//校验和
+    u_short identification; // 标识
+    u_short sequence;       // 序列号
 }icmp_header;
 
 /* DNS 首部*/

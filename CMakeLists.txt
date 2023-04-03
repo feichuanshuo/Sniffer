@@ -36,6 +36,8 @@ set(PROJECT_SOURCES
         head.h
         sniffer.h
         sniffer.cpp
+        dataPackage.h
+        datapackage.cpp
         ${TS_FILES}
 )
 

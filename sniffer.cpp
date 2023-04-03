@@ -1,6 +1,4 @@
-
 #include "sniffer.h"
-#include "head.h"
 #include <winsock2.h>
 #include <iostream>
 
@@ -10,109 +8,28 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
     // 将用户参数转换为Sniffer对象
     Sniffer* sniffer = reinterpret_cast<Sniffer*>(param);
 
-    /****** 定义传递的数据包详情 ******/
-    QString p_time;
-    QString p_len;
-    // 以太网帧
-    ethernet_data p_ethernet;
-    // ip数据包
-    ip_data p_ip;
-
-
-    /****** 解析包头信息 ******/
+    DataPackage package;
     // 获取数据包的长度
-    p_len = QString::number(header->len);
-    // 获取数据包的时间戳
+    package.setDataLength(header->len);
+
+    // 获取数据包的时间
     time_t t = header->ts.tv_sec;
     struct tm* local_time = localtime(&t);
     char time_str[32];
-    strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", local_time);
+    strftime(time_str, sizeof(time_str), "%Y/%m/%d %H:%M:%S", local_time);
     int ms = header->ts.tv_usec;
-    p_time = QString(time_str) + "." + QString::number(ms).leftJustified(6, '0');
-    /****** 解析数据包 ******/
-    /*处理链路层*/
-    ethernet_header *eh;
-    eh = (ethernet_header *)pkt_data;
-    // 解析目标MAC地址
-    p_ethernet.dmac = QString("%1:%2:%3:%4:%5:%6")
-           .arg(eh->daddr.byte1, 2, 16, QChar('0'))
-           .arg(eh->daddr.byte2, 2, 16, QChar('0'))
-           .arg(eh->daddr.byte3, 2, 16, QChar('0'))
-           .arg(eh->daddr.byte4, 2, 16, QChar('0'))
-           .arg(eh->daddr.byte5, 2, 16, QChar('0'))
-           .arg(eh->daddr.byte6, 2, 16, QChar('0'));
+    package.setTime(QString(time_str) + "." + QString::number(ms).leftJustified(6, '0'));
 
-   // 解析源MAC地址
-   p_ethernet.smac = QString("%1:%2:%3:%4:%5:%6")
-           .arg(eh->saddr.byte1, 2, 16, QChar('0'))
-           .arg(eh->saddr.byte1, 2, 16, QChar('0'))
-           .arg(eh->saddr.byte1, 2, 16, QChar('0'))
-           .arg(eh->saddr.byte1, 2, 16, QChar('0'))
-           .arg(eh->saddr.byte1, 2, 16, QChar('0'))
-           .arg(eh->saddr.byte1, 2, 16, QChar('0'));
-    //  将网络字节序转换成主机字节序，获取网络层协议类型
-    u_short eh_type = ntohs(eh->type);
-    /*处理网络层*/
-    if(eh_type == IP){
-        p_ethernet.protocol = "IP";
-       // 获取IP头部信息
-       ip_header *iph;
-       iph = (ip_header *)(pkt_data + sizeof(ethernet_header));
-       // IP版本
-       p_ip.ver = QString::number(iph->ver);
-       // 首部长度
-       p_ip.ihl = QString::number(iph->ihl);
-       // 服务类型(Type of service)
-       p_ip.tos = QString("%1").arg(iph->tos,2,16,QChar('0')).toUpper();
-       // 总长(Total length)
-       p_ip.tlen = QString::number(ntohs(iph->tlen));
-       // 标识(Identification)
-       p_ip.identification = QString("%1").arg(ntohs(iph->identification),4,16,QChar('0')).toUpper();
-       // 标志位(Flags) (3 bits) + 段偏移量(Fragment offset) (13 bits)
-       //u_short p_ip_flags_fo = iph->flags_fo;
-       p_ip.flags_fo = QString::number(iph->flags_fo);
-       // 生存时间(Time to live)
-       p_ip.ttl = QString::number(iph->ttl);
-       // 协议(Protocol)
-       switch (iph->type){
-        case 1 : p_ip.type = "ICMP" ; break;
-        case 2 : p_ip.type = "IGMP" ; break;
-        case 6 : p_ip.type = "TCP" ; break;
-        case 17 : p_ip.type = "UDP" ; break;
-        case 46 : p_ip.type = "RSVP" ; break;
-        case 47 : p_ip.type = "GRE" ; break;
-        case 50: p_ip.type = "ESP" ; break;
-        case 51 : p_ip.type = "AH " ; break;
-        case 58 : p_ip.type = "ICMPv6" ; break;
-        case 89 : p_ip.type = "OSPF" ; break;
-        case 132: p_ip.type = "SCTP" ; break;
-        default: p_ip.type = "不常用协议";
-       }
+    // 解析包
+    package.setPackagePointer(pkt_data,header->len);
 
-       // 首部校验和(Header checksum)
-       p_ip.crc = QString("%1").arg(ntohs(iph->crc),4,16,QChar('0')).toUpper();;
-       // 源地址(Source address)
-       p_ip.saddr = QString("%1.%2.%3.%4")
-               .arg(iph->saddr.byte1)
-               .arg(iph->saddr.byte2)
-               .arg(iph->saddr.byte3)
-               .arg(iph->saddr.byte4);
-       // 目的地址(Destination address)
-       p_ip.daddr = QString("%1.%2.%3.%4")
-               .arg(iph->daddr.byte1)
-               .arg(iph->daddr.byte2)
-               .arg(iph->daddr.byte3)
-               .arg(iph->daddr.byte4);
-       // 选项与填充(Option + Padding)
-       //u_int   p_ip_op_pad = iph->op_pad;
-       p_ip.op_pad = QString::number(iph->op_pad);
-    }
-    emit sniffer->setTableData(p_ethernet,p_ip,p_len,p_time);
+    sniffer->packageList.append(package);
+
+    emit sniffer->setTableData(package);
 
 }
 
-Sniffer::Sniffer(QObject *parent,QMainWindow* win)
-    : QObject{parent} , m_win(nullptr)
+Sniffer::Sniffer()
 {
 
 }
@@ -193,17 +110,7 @@ void Sniffer::stopCapture(){
     pcap_breakloop(descr);
 }
 
-
-
-/*********sniffer线程***************/
-MyThread::MyThread(QObject* parent)
-    : QThread(parent)
+void Sniffer::run()
 {
-    m_sniffer = new Sniffer();
-
-}
-
-void MyThread::run()
-{
-    m_sniffer->startCapture();
+    startCapture();
 }

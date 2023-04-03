@@ -4,8 +4,8 @@
 
 #include "pcap.h"
 #include <QMainWindow>
-#include <set>
 #include "sniffer.h"
+#include "head.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -29,7 +29,9 @@ private slots:
     // 展示错误弹窗
     void showErrorDialog(QString text);
     // 展示包
-    void setPacketTable(ethernet_data p_ethernet,ip_data p_ip, QString p_len,QString p_time);
+    void setPacketTable(DataPackage package);
+    void on_actiondsadas_triggered();
+
 signals:
     void warning(QString);
     void error(QString);
@@ -37,6 +39,5 @@ private:
     Ui::MainWindow *ui;
     // 嗅探器程序
     Sniffer* m_sniffer;
-    QThread* m_thread;
 };
 #endif // MAINWINDOW_H

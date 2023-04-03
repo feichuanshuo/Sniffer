@@ -29,11 +29,6 @@
     </property>
     <column>
      <property name="text">
-      <string>协议</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
       <string>时间</string>
      </property>
     </column>
@@ -59,16 +54,21 @@
     </column>
     <column>
      <property name="text">
+      <string>协议</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
       <string>长度</string>
      </property>
     </column>
    </widget>
-   <widget class="QTextBrowser" name="textBrowser_2">
+   <widget class="QTextBrowser" name="textBrowser1">
     <property name="geometry">
      <rect>
       <x>490</x>
       <y>250</y>
-      <width>501</width>
+      <width>321</width>
       <height>192</height>
      </rect>
     </property>
@@ -114,6 +114,16 @@
      </property>
     </column>
    </widget>
+   <widget class="QTextBrowser" name="textBrowser2">
+    <property name="geometry">
+     <rect>
+      <x>810</x>
+      <y>250</y>
+      <width>181</width>
+      <height>192</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -137,6 +147,7 @@
     </property>
     <addaction name="menu2_action1"/>
     <addaction name="menu2_action2"/>
+    <addaction name="actiondsadas"/>
    </widget>
    <addaction name="menu1"/>
    <addaction name="menu_"/>
@@ -160,6 +171,11 @@
   <action name="menu1_action1">
    <property name="text">
     <string>网卡设备选择</string>
+   </property>
+  </action>
+  <action name="actiondsadas">
+   <property name="text">
+    <string>清除数据包列表 </string>
    </property>
   </action>
  </widget>
